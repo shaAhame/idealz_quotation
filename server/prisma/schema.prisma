@@ -1,0 +1,74 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(uuid())
+  name       String
+  email      String      @unique
+  password   String
+  branch     Branch
+  role       Role        @default(MANAGER)
+  createdAt  DateTime    @default(now())
+  quotations Quotation[]
+}
+
+model Quotation {
+  id          String      @id @default(uuid())
+  globalNum   Int         @unique
+  branch      Branch
+  managerId   String
+  manager     User        @relation(fields: [managerId], references: [id])
+  clientName  String
+  clientAddr  String?
+  clientEmail String
+  clientPhone String?
+  taxMode     TaxMode
+  items       Json
+  subTotal    Float
+  vatAmount   Float
+  ssclAmount  Float       @default(0)
+  total       Float
+  notes       String?
+  status      Status      @default(DRAFT)
+  downloadToken String    @unique @default(uuid())
+  emailSentAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Counter {
+  id    String @id @default("global")
+  value Int    @default(0)
+}
+
+enum Branch {
+  Prime
+  Marino
+  Liberty
+}
+
+enum Role {
+  MANAGER
+  ADMIN
+}
+
+enum TaxMode {
+  VAT18
+  NO_TAX
+  VAT18_SSCL25
+  FLAT205
+  VAT_INCLUSIVE
+}
+
+enum Status {
+  DRAFT
+  SENT
+  VIEWED
+}

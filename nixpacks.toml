@@ -1,0 +1,48 @@
+# nixpacks.toml — Railway build config
+
+[phases.setup]
+nixPkgs = [
+  "nodejs_20",
+  "chromium",
+  "nss",
+  "freetype",
+  "harfbuzz",
+  "ca-certificates",
+  "ttf-dejavu",
+  "glib",
+  "atk",
+  "at-spi2-atk",
+  "cups",
+  "dbus",
+  "expat",
+  "libdrm",
+  "libxkbcommon",
+  "xorg.libX11",
+  "xorg.libXcomposite",
+  "xorg.libXdamage",
+  "xorg.libXext",
+  "xorg.libXfixes",
+  "xorg.libXrandr",
+  "mesa"
+]
+
+[phases.install]
+cmds = [
+  "npm install",
+  "cd server && npm install",
+  "cd client && npm install"
+]
+
+[phases.build]
+cmds = [
+  "cd client && npm run build",
+  "cd server && npx prisma generate"
+]
+
+[start]
+cmd = "cd server && npx prisma migrate deploy && node index.js"
+
+[variables]
+PUPPETEER_EXECUTABLE_PATH = "/run/current-system/sw/bin/chromium"
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+NODE_ENV = "production"
