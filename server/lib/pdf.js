@@ -5,9 +5,9 @@ const fs = require('fs');
 const path = require('path');
 
 const BRANCHES = {
-  Prime:   { addr: 'No. 86, Galle Road, Colombo',    wa: '0777243243', ph: '0112556565', maps: 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo' },
-  Marino:  { addr: '590-9A, Marino Mall, Colombo',    wa: '0777656565', ph: '0112585758', maps: 'https://maps.google.com/?q=Marino+Mall+Colombo' },
-  Liberty: { addr: '01-64, Liberty Plaza, Colombo',   wa: '0777655565', ph: '0112575357', maps: 'https://maps.google.com/?q=Liberty+Plaza+Colombo' },
+  Prime:   { addr: 'No. 86, Galle Road, Colombo 04', wa: '0777243243', ph: '0112556565', maps: 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo' },
+  Marino:  { addr: '590-9A, Marino Mall, Colombo 03', wa: '0777656565', ph: '0112585758', maps: 'https://maps.google.com/?q=Marino+Mall+Colombo' },
+  Liberty: { addr: '01-64, Liberty Plaza, Colombo 03', wa: '0777655565', ph: '0112575357', maps: 'https://maps.google.com/?q=Liberty+Plaza+Colombo' },
 };
 
 function fmtNum(n) { return n.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3'); }
@@ -23,7 +23,7 @@ function getLogoTag() {
     try {
       if (fs.existsSync(p)) {
         const b64 = fs.readFileSync(p).toString('base64');
-        return `<img src="data:image/png;base64,${b64}" alt="iDealz" style="width:160px;height:auto;display:block">`;
+        return `<img src="data:image/png;base64,${b64}" alt="iDealz" style="width:160px;height:auto;display:block;background:#fff">`;
       }
     } catch {}
   }
@@ -41,8 +41,10 @@ function buildHTML(q) {
   const wa  = (num, disp) => `<a href="https://wa.me/94${num.replace(/^0/,'')}" style="color:#111;text-decoration:none;font-weight:700">${disp}</a>`;
   const tel = (num, disp) => `<a href="tel:${num}" style="color:#444;text-decoration:none">${disp}</a>`;
 
-  const branchCell = (name, addr, waNum, phNum, maps) => `
-    <td style="text-align:center;padding:5px 4px;color:#444;vertical-align:top;font-size:9px;border-right:0.5px solid #ddd">
+  // Only show the sending branch contact in header
+  // Show all 3 branches only once in footer
+  const branchCell = (name, addr, waNum, phNum, maps, isLast) => `
+    <td style="text-align:center;padding:5px 4px;color:#444;vertical-align:top;font-size:9px;${!isLast ? 'border-right:0.5px solid #ddd;' : ''}">
       <div style="font-weight:700;font-size:10px;margin-bottom:2px">iDealz ${name}</div>
       <div style="margin-bottom:2px">${addr}</div>
       <div style="margin-bottom:2px">${wa(waNum,fmtNum(waNum))} | ${tel(phNum,fmtNum(phNum))}</div>
@@ -58,9 +60,12 @@ function buildHTML(q) {
 </style>
 </head><body>
 
+<!-- HEADER: logo + branch contact (sending branch only) + quotation details -->
 <table style="width:100%;border-collapse:collapse;margin-bottom:14px"><tr>
-  <td style="vertical-align:middle;width:200px">
-    ${logoTag}
+  <td style="vertical-align:middle;width:210px">
+    <div style="background:#fff;padding:4px 0;display:inline-block">
+      ${logoTag}
+    </div>
     <div style="font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:3px">The future's bright</div>
     <div style="margin-top:8px;font-size:10px;color:#444;line-height:1.8">
       <div style="font-weight:700">${b.addr}</div>
@@ -79,14 +84,30 @@ function buildHTML(q) {
   </td>
 </tr></table>
 
-<div style="border-top:2.5px solid #000;border-bottom:0.5px solid #ccc;padding:8px 0;margin-bottom:13px">
-  <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Bill to</div>
-  <div style="font-weight:700;font-size:13px">${q.clientName}</div>
-  ${q.clientAddr ? `<div style="color:#555">${q.clientAddr}</div>` : ''}
-  ${q.clientPhone ? `<div style="color:#555">P: ${q.clientPhone}</div>` : ''}
-  <div>E: <a href="mailto:${q.clientEmail}" style="color:#111;text-decoration:none">${q.clientEmail}</a></div>
+<!-- BILL TO -->
+<div style="border-top:2.5px solid #000;border-bottom:0.5px solid #ccc;padding:10px 0;margin-bottom:13px">
+  <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Bill to</div>
+  <table style="border-collapse:collapse;width:100%">
+    <tr>
+      <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap;vertical-align:top">Company / Name</td>
+      <td style="font-size:13px;font-weight:700;color:#111;padding-bottom:4px">${q.clientName}</td>
+    </tr>
+    ${q.clientAddr ? `<tr>
+      <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap;vertical-align:top">Address</td>
+      <td style="font-size:11px;color:#333;padding-bottom:4px">${q.clientAddr}</td>
+    </tr>` : ''}
+    ${q.clientPhone ? `<tr>
+      <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap">Phone</td>
+      <td style="font-size:11px;color:#333;padding-bottom:4px">${q.clientPhone}</td>
+    </tr>` : ''}
+    <tr>
+      <td style="font-size:11px;color:#888;padding-right:16px;white-space:nowrap">Email</td>
+      <td style="font-size:11px;color:#333"><a href="mailto:${q.clientEmail}" style="color:#333;text-decoration:none">${q.clientEmail}</a></td>
+    </tr>
+  </table>
 </div>
 
+<!-- ITEMS TABLE -->
 <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:13px">
 <thead><tr>
   <th style="background:#111;color:#fff;padding:7px 8px;text-align:center;width:44px;font-weight:700">QTY</th>
@@ -104,6 +125,7 @@ ${items.map((it, i) => `
 </tr>`).join('')}
 </tbody></table>
 
+<!-- PAYMENT + TOTALS -->
 <table style="width:100%;border-collapse:collapse;margin-bottom:13px"><tr>
   <td style="vertical-align:top;font-size:10px;color:#444;padding-right:20px">
     <div style="font-weight:700;margin-bottom:5px;font-size:11px">Payment Details</div>
@@ -130,26 +152,24 @@ ${items.map((it, i) => `
 </tr></table>
 
 ${q.notes ? `<div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px;color:#555;margin-bottom:12px;border-radius:3px"><b>Notes:</b> ${q.notes}</div>` : ''}
+
+<!-- TERMS -->
 <div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px;color:#555;margin-bottom:13px;border-radius:3px">
   <b>Terms &amp; Conditions:</b> This quotation is valid only on the date of issue, subjected to availability of stock.
   Goods dispatched after cheque realisation only. Please write cheques in favour of <b>"iDealz Lanka (Pvt) Limited"</b>.
 </div>
 
+<!-- FOOTER: all 3 branches (shown once only) + social media (shown once only) -->
 <div style="border-top:0.5px solid #ccc;padding-top:9px">
   <table style="width:100%;border-collapse:collapse;margin-bottom:7px"><tr>
-    ${branchCell('Prime','No. 86, Galle Road, Colombo','0777243243','0112556565','https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo')}
-    ${branchCell('Marino Mall','590-9A, Marino Mall, Colombo','0777656565','0112585758','https://maps.google.com/?q=Marino+Mall+Colombo')}
-    <td style="text-align:center;padding:5px 4px;color:#444;vertical-align:top;font-size:9px">
-      <div style="font-weight:700;font-size:10px;margin-bottom:2px">iDealz Liberty Plaza</div>
-      <div style="margin-bottom:2px">01-64, Liberty Plaza, Colombo</div>
-      <div style="margin-bottom:2px">${wa('0777655565',fmtNum('0777655565'))} | ${tel('0112575357',fmtNum('0112575357'))}</div>
-      <a href="https://maps.google.com/?q=Liberty+Plaza+Colombo" style="color:#666;font-size:8px;text-decoration:none">View on Google Maps</a>
-    </td>
+    ${branchCell('Prime', 'No. 86, Galle Road, Colombo 04', '0777243243', '0112556565', 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo', false)}
+    ${branchCell('Marino Mall', '590-9A, Marino Mall, Colombo 03', '0777656565', '0112585758', 'https://maps.google.com/?q=Marino+Mall+Colombo', false)}
+    ${branchCell('Liberty Plaza', '01-64, Liberty Plaza, Colombo 03', '0777655565', '0112575357', 'https://maps.google.com/?q=Liberty+Plaza+Colombo', true)}
   </tr></table>
   <div style="text-align:center;font-size:10px;color:#555;margin-bottom:3px">
-    <a href="https://www.instagram.com/idealzlanka" style="color:#111;text-decoration:none;margin:0 6px">Instagram</a>
+    <a href="https://www.instagram.com/idealzlanka?igsh=bXVubjVmanFmanpk&utm_source=qr" style="color:#111;text-decoration:none;margin:0 6px">Instagram</a>
     <a href="https://www.facebook.com/iDealz9191" style="color:#111;text-decoration:none;margin:0 6px">Facebook</a>
-    <a href="https://www.tiktok.com/@idealzlanka" style="color:#111;text-decoration:none;margin:0 6px">TikTok</a>
+    <a href="https://www.tiktok.com/@idealzlanka?_r=1&_t=ZS-96NH2o6mLsA" style="color:#111;text-decoration:none;margin:0 6px">TikTok</a>
     &nbsp;|&nbsp; <a href="mailto:info@idealz.lk" style="color:#111;text-decoration:none">info@idealz.lk</a>
     &nbsp;|&nbsp; <a href="https://www.idealz.lk" style="color:#111;text-decoration:none">www.idealz.lk</a>
   </div>
@@ -162,11 +182,18 @@ ${q.notes ? `<div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px
 }
 
 async function generatePDF(q) {
-  const execPath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
   const browser = await puppeteer.launch({
     headless: 'new',
-    executablePath: execPath,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process',
+    ],
   });
   try {
     const page = await browser.newPage();
