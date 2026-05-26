@@ -1,14 +1,10 @@
-# railway.toml
 [build]
-builder = "nixpacks"
-buildCommand = "npm run build"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npm start"
-healthcheckPath = "/api/auth/me"
-healthcheckTimeout = 30
+startCommand = "cd server && npx prisma migrate deploy && node index.js"
+healthcheckPath = "/"
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
-
-[[services]]
-name = "idealz-quotation"
