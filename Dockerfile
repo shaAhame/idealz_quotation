@@ -49,4 +49,4 @@ RUN cd server && npx prisma generate
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "cd server && npx prisma migrate deploy && node index.js"]
+CMD ["sh", "-c", "cd server && npx prisma generate && npx prisma migrate deploy && node index.js"]
