@@ -1,29 +1,11 @@
 // server/lib/email.js
-const nodemailer = require('nodemailer');
 const { TAX_LABELS } = require('./tax');
-
-function getTransporter() {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
-    tls: { rejectUnauthorized: false },
-  });
-}
 
 function fmtRs(v) {
   return 'Rs. ' + parseFloat(v).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 async function sendQuotationEmail(q, downloadUrl) {
-  const transporter = getTransporter();
   const tl = TAX_LABELS[q.taxMode];
 
   const html = `<!DOCTYPE html>
@@ -88,14 +70,29 @@ async function sendQuotationEmail(q, downloadUrl) {
 </table>
 </body></html>`;
 
-  await transporter.sendMail({
-    from: '"iDealz" <info@idealz.lk>',
-    to: q.clientEmail,
-    subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
-    html,
+  // Use Brevo HTTP API (port 443 - Railway cannot block this)
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: `iDealz ${q.branch}`, email: 'info@idealz.lk' },
+      to: [{ email: q.clientEmail, name: q.clientName }],
+      subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
+      htmlContent: html,
+    }),
   });
 
-  console.log(`Email sent to ${q.clientEmail}`);
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || JSON.stringify(err));
+  }
+
+  const result = await response.json();
+  console.log('Email sent via Brevo API:', result.messageId);
 }
 
 module.exports = { sendQuotationEmail };
