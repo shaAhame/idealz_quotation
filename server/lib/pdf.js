@@ -67,9 +67,10 @@ function buildHTML(q) {
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff;padding:22px;font-size:12px}
+  body{font-family:'DM Sans',Arial,Helvetica,sans-serif;color:#111;background:#fff;padding:22px;font-size:12px}
   @page{size:A4;margin:8mm}
 </style>
 </head><body>
@@ -166,12 +167,20 @@ ${q.notes ? `<div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px
 
 <!-- TERMS -->
 <div style="border:0.5px solid #ccc;padding:10px 12px;font-size:10px;color:#555;margin-bottom:13px;border-radius:3px">
-  <div style="font-weight:700;margin-bottom:6px;font-size:11px">Terms &amp; Conditions</div>
+  <div style="font-weight:700;margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Terms &amp; Conditions</div>
   <table style="border-collapse:collapse;width:100%">
-    <tr><td style="vertical-align:top;padding-right:6px;padding-bottom:3px">•</td><td style="padding-bottom:3px;line-height:1.5">This quotation is valid only on the date of issue.</td></tr>
-    <tr><td style="vertical-align:top;padding-right:6px;padding-bottom:3px">•</td><td style="padding-bottom:3px;line-height:1.5">Subject to availability of stock.</td></tr>
-    <tr><td style="vertical-align:top;padding-right:6px;padding-bottom:3px">•</td><td style="padding-bottom:3px;line-height:1.5">Goods will be dispatched only after cheque realisation.</td></tr>
-    <tr><td style="vertical-align:top;padding-right:6px">•</td><td style="line-height:1.5">Please write cheques in favour of <b>"iDealz Lanka (Pvt) Limited"</b>.</td></tr>
+    <tr>
+      <td style="vertical-align:top;padding-right:8px;padding-bottom:5px;color:#111;font-weight:700;font-size:13px">•</td>
+      <td style="padding-bottom:5px;line-height:1.6">This quotation is valid only on the date of issue and subjected to availability of stock.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align:top;padding-right:8px;padding-bottom:5px;color:#111;font-weight:700;font-size:13px">•</td>
+      <td style="padding-bottom:5px;line-height:1.6">Please write the cheques in favour of <b>"iDealz Lanka (Pvt) Limited"</b>.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align:top;padding-right:8px;color:#111;font-weight:700;font-size:13px">•</td>
+      <td style="line-height:1.6">Please note that the Goods will be dispatched after the cheque realization only.</td>
+    </tr>
   </table>
 </div>
 
