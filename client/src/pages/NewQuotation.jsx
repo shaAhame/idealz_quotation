@@ -12,7 +12,7 @@ export default function NewQuotation() {
 
   const [form, setForm] = useState({
     clientName: '', clientAddr: '', clientEmail: '',
-    clientPhone: '', taxMode: 'VAT18', notes: ''
+    clientPhone: '', taxMode: 'VAT18', notes: '', quotationType: 'COMMON'
   });
   const [items, setItems] = useState([{ id: 1, qty: 1, desc: '', price: '' }]);
   const [saving, setSaving] = useState(false);
@@ -124,7 +124,7 @@ export default function NewQuotation() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
         <div>
           <div className="page-title">New Quotation</div>
           <div className="page-subtitle">Fill in client details, select tax format, add items</div>
@@ -132,12 +132,12 @@ export default function NewQuotation() {
       </div>
 
       {emailSent && (
-        <div className="alert alert-success" style={{ marginBottom: 16 }}>
+        <div className="alert alert-success" style={{ marginBottom:16 }}>
           <strong>✓ Email sent to {form.clientEmail}</strong>
-          <div style={{ marginTop: 8 }}>Share this download link with your client:</div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+          <div style={{ marginTop:8 }}>Share this download link with your client:</div>
+          <div style={{ display:'flex', gap:8, marginTop:6 }}>
             <input className="form-input" value={downloadUrl} readOnly
-              style={{ flex: 1, fontFamily: 'monospace', fontSize: 12 }} />
+              style={{ flex:1, fontFamily:'monospace', fontSize:12 }} />
             <button className="btn" onClick={copyLink}>
               {copied ? <><Icons.Check /> Copied!</> : <><Icons.Copy /> Copy</>}
             </button>
@@ -145,8 +145,8 @@ export default function NewQuotation() {
         </div>
       )}
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 14 }}>Client Details</div>
+      <div className="card" style={{ marginBottom:16 }}>
+        <div style={{ fontWeight:600, fontSize:13, marginBottom:14 }}>Client Details</div>
         <div className="form-grid">
           <div className="full">
             <label className="form-label">Company / Client name *</label>
@@ -177,8 +177,8 @@ export default function NewQuotation() {
         </div>
       </div>
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 12 }}>Tax / Price Format</div>
+      <div className="card" style={{ marginBottom:16 }}>
+        <div style={{ fontWeight:600, fontSize:13, marginBottom:12 }}>Tax / Price Format</div>
         <div className="tax-grid">
           {TAX_MODES.map(t => (
             <div key={t.id}
@@ -189,25 +189,40 @@ export default function NewQuotation() {
             </div>
           ))}
         </div>
-        <div style={{ fontSize: 12, color: 'var(--text3)', background: 'var(--bg2)', padding: '8px 12px', borderRadius: 6 }}>
+        <div style={{ fontSize:12, color:'var(--text3)', background:'var(--bg2)', padding:'8px 12px', borderRadius:6 }}>
           {taxInfo?.desc}
         </div>
       </div>
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ fontWeight: 600, fontSize: 13 }}>Items</div>
+      <div className="card" style={{ marginBottom:16 }}>
+        <div style={{ fontWeight:600, fontSize:13, marginBottom:12 }}>Quotation Type</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <div
+            className={`tax-opt${form.quotationType === 'COMMON' ? ' selected' : ''}`}
+            onClick={() => setF('quotationType', 'COMMON')}
+            style={{ padding:'12px 16px', textAlign:'left' }}>
+            <div className="t-name" style={{ fontSize:13 }}>🌐 Common</div>
+            <div className="t-pct" style={{ marginTop:4 }}>Shows all 3 branch addresses in footer</div>
+          </div>
+          <div
+            className={`tax-opt${form.quotationType === 'BRANCH' ? ' selected' : ''}`}
+            onClick={() => setF('quotationType', 'BRANCH')}
+            style={{ padding:'12px 16px', textAlign:'left' }}>
+            <div className="t-name" style={{ fontSize:13 }}>🏪 Branch only</div>
+        <div className="card" style={{ marginBottom:16 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+          <div style={{ fontWeight:600, fontSize:13 }}>Items</div>
           <button className="btn btn-sm" onClick={addItem}><Icons.Plus /> Add item</button>
         </div>
-        {errors.items && <div className="alert alert-error" style={{ marginBottom: 10 }}>{errors.items}</div>}
+        {errors.items && <div className="alert alert-error" style={{ marginBottom:10 }}>{errors.items}</div>}
         <div className="table-wrap">
-          <table className="items-table" style={{ marginBottom: 14 }}>
+          <table className="items-table" style={{ marginBottom:14 }}>
             <thead>
               <tr>
                 <th>Qty</th>
                 <th>Description</th>
-                <th style={{ textAlign: 'right' }}>Unit price (Rs.)</th>
-                <th style={{ textAlign: 'right' }}>Total (Rs.)</th>
+                <th style={{ textAlign:'right' }}>Unit price (Rs.)</th>
+                <th style={{ textAlign:'right' }}>Total (Rs.)</th>
                 <th></th>
               </tr>
             </thead>
@@ -217,7 +232,7 @@ export default function NewQuotation() {
                   <td>
                     <input type="number" min="1" value={item.qty}
                       onChange={e => updateItem(item.id, 'qty', e.target.value)}
-                      style={{ width: 40, textAlign: 'center' }} />
+                      style={{ width:40, textAlign:'center' }} />
                   </td>
                   <td>
                     <input type="text" value={item.desc}
@@ -227,13 +242,13 @@ export default function NewQuotation() {
                   <td>
                     <input type="number" min="0" step="0.01" value={item.price}
                       onChange={e => updateItem(item.id, 'price', e.target.value)}
-                      placeholder="0.00" style={{ textAlign: 'right' }} />
+                      placeholder="0.00" style={{ textAlign:'right' }} />
                   </td>
-                  <td style={{ fontWeight: 600, fontSize: 13, textAlign: 'right', paddingRight: 12 }}>
+                  <td style={{ fontWeight:600, fontSize:13, textAlign:'right', paddingRight:12 }}>
                     {item.qty && item.price ? fmtRs(+item.qty * +item.price) : '—'}
                   </td>
                   <td>
-                    <button className="btn btn-icon" style={{ color: 'var(--danger)' }}
+                    <button className="btn btn-icon" style={{ color:'var(--danger)' }}
                       onClick={() => removeItem(item.id)}>
                       <Icons.Trash />
                     </button>
@@ -243,7 +258,7 @@ export default function NewQuotation() {
             </tbody>
           </table>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display:'flex', justifyContent:'flex-end' }}>
           <div className="totals-box">
             <div className="total-line"><span>Sub total</span><span>{fmtRs(sub)}</span></div>
             {form.taxMode === 'VAT18_SSCL25' &&
@@ -259,14 +274,14 @@ export default function NewQuotation() {
         </div>
       </div>
 
-      <div className="card" style={{ marginBottom: 24 }}>
+      <div className="card" style={{ marginBottom:24 }}>
         <label className="form-label">Notes / Additional terms (optional)</label>
         <textarea className="form-input" value={form.notes}
           onChange={e => setF('notes', e.target.value)}
           rows={2} placeholder="e.g. 06 month seller warranty included" />
       </div>
 
-      <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+      <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
         <button className="btn" onClick={handlePDF} disabled={saving || sending || downloading}>
           <Icons.Download /> {downloading ? 'Generating…' : 'Download PDF'}
         </button>
