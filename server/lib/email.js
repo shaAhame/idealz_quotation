@@ -3,15 +3,24 @@ const nodemailer = require('nodemailer');
 const { TAX_LABELS } = require('./tax');
 
 function getTransporter() {
+  // Try multiple ports in order - Railway blocks some SMTP ports
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const secure = port === 465;
+  
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '465'),
-    secure: process.env.SMTP_PORT === '465' || process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-    tls: { rejectUnauthorized: false }
+    port,
+    secure,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 30000,
+    tls: { rejectUnauthorized: false },
+    // Required for Railway
+    requireTLS: !secure,
   });
 }
 
@@ -20,11 +29,9 @@ function fmtRs(v) {
 }
 
 async function sendQuotationEmail(q, downloadUrl) {
-  const transporter = getTransporter();
   const tl = TAX_LABELS[q.taxMode];
 
-  const html = `
-<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,Helvetica,sans-serif">
@@ -43,19 +50,12 @@ async function sendQuotationEmail(q, downloadUrl) {
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;border:1px solid #e0e0e0;border-radius:4px;margin-bottom:24px">
       <tr><td style="padding:16px 20px">
-        <table width="100%"><tr>
-          <td style="font-size:12px;color:#888">Quotation #</td>
-          <td style="font-size:13px;font-weight:700;text-align:right;color:#111">${q.globalNum}</td>
-        </tr><tr>
-          <td style="font-size:12px;color:#888;padding-top:6px">Branch</td>
-          <td style="font-size:13px;text-align:right;color:#333;padding-top:6px">iDealz ${q.branch}</td>
-        </tr><tr>
-          <td style="font-size:12px;color:#888;padding-top:6px">Tax type</td>
-          <td style="font-size:13px;text-align:right;color:#333;padding-top:6px">${tl}</td>
-        </tr><tr>
-          <td style="font-size:12px;color:#888;padding-top:6px">Date</td>
-          <td style="font-size:13px;text-align:right;color:#333;padding-top:6px">${new Date(q.createdAt).toLocaleDateString('en-GB')}</td>
-        </tr></table>
+        <table width="100%">
+          <tr><td style="font-size:12px;color:#888">Quotation #</td><td style="font-size:13px;font-weight:700;text-align:right;color:#111">${q.globalNum}</td></tr>
+          <tr><td style="font-size:12px;color:#888;padding-top:6px">Branch</td><td style="font-size:13px;text-align:right;color:#333;padding-top:6px">iDealz ${q.branch}</td></tr>
+          <tr><td style="font-size:12px;color:#888;padding-top:6px">Tax type</td><td style="font-size:13px;text-align:right;color:#333;padding-top:6px">${tl}</td></tr>
+          <tr><td style="font-size:12px;color:#888;padding-top:6px">Date</td><td style="font-size:13px;text-align:right;color:#333;padding-top:6px">${new Date(q.createdAt).toLocaleDateString('en-GB')}</td></tr>
+        </table>
       </td></tr>
       <tr><td style="background:#111;padding:12px 20px;border-radius:0 0 3px 3px">
         <table width="100%"><tr>
@@ -74,13 +74,15 @@ async function sendQuotationEmail(q, downloadUrl) {
       ${downloadUrl}
     </div>
     <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
-    <p style="font-size:11px;color:#999;margin:0 0 4px">Terms: This quotation is valid only on date of issue, subject to availability of stock.</p>
-    <p style="font-size:11px;color:#999;margin:0">Goods dispatched after cheque realisation only. Cheques in favour of "iDealz Lanka (Pvt) Limited".</p>
+    <p style="font-size:11px;color:#999;margin:0 0 4px">Terms: Valid only on date of issue, subject to availability of stock.</p>
+    <p style="font-size:11px;color:#999;margin:0">Goods dispatched after cheque realisation. Cheques in favour of "iDealz Lanka (Pvt) Limited".</p>
   </td></tr>
   <tr><td style="background:#f9f9f9;padding:20px 32px;border-top:1px solid #eee">
     <table width="100%"><tr>
       <td style="font-size:10px;color:#888;text-align:center">
-        <b>iDealz Prime</b>: 0777 243 243 &nbsp;|&nbsp; <b>Marino</b>: 0777 656 565 &nbsp;|&nbsp; <b>Liberty</b>: 0777 655 565<br>
+        <b>iDealz Prime</b>: 0777 243 243 &nbsp;|&nbsp;
+        <b>Marino</b>: 0777 656 565 &nbsp;|&nbsp;
+        <b>Liberty</b>: 0777 655 565<br>
         <a href="mailto:info@idealz.lk" style="color:#555;text-decoration:none">info@idealz.lk</a> &nbsp;|&nbsp;
         <a href="https://www.idealz.lk" style="color:#555;text-decoration:none">www.idealz.lk</a>
       </td>
@@ -91,12 +93,40 @@ async function sendQuotationEmail(q, downloadUrl) {
 </table>
 </body></html>`;
 
-  await transporter.sendMail({
-    from: `"iDealz ${q.branch}" <${process.env.SMTP_USER}>`,
-    to: q.clientEmail,
-    subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
-    html
-  });
+  // Try port 587 first, then 465 if that fails
+  const ports = [587, 465, 25];
+  let lastError;
+  
+  for (const port of ports) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port,
+        secure: port === 465,
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        connectionTimeout: 20000,
+        greetingTimeout: 20000,
+        socketTimeout: 20000,
+        tls: { rejectUnauthorized: false },
+      });
+      
+      await transporter.sendMail({
+        from: `"iDealz ${q.branch}" <${process.env.SMTP_USER}>`,
+        to: q.clientEmail,
+        subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
+        html,
+      });
+      
+      console.log(`Email sent successfully via port ${port}`);
+      return; // Success - exit
+    } catch (err) {
+      console.log(`Port ${port} failed: ${err.message}`);
+      lastError = err;
+    }
+  }
+  
+  // All ports failed
+  throw lastError;
 }
 
 module.exports = { sendQuotationEmail };
