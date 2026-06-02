@@ -5,8 +5,8 @@ const fs = require('fs');
 const path = require('path');
 
 const BRANCHES = {
-  Prime:   { addr: 'No. 86, Galle Road, Colombo 04', wa: '0777243243', ph: '0112556565', maps: 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo' },
-  Marino:  { addr: '590-9A, Marino Mall, Colombo 03', wa: '0777656565', ph: '0112585758', maps: 'https://maps.google.com/?q=Marino+Mall+Colombo' },
+  Prime:   { addr: 'No. 86, Galle Road, Colombo 04',  wa: '0777243243', ph: '0112556565', maps: 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo' },
+  Marino:  { addr: '590-9A, Marino Mall, Colombo 03',  wa: '0777656565', ph: '0112585758', maps: 'https://maps.google.com/?q=Marino+Mall+Colombo' },
   Liberty: { addr: '01-64, Liberty Plaza, Colombo 03', wa: '0777655565', ph: '0112575357', maps: 'https://maps.google.com/?q=Liberty+Plaza+Colombo' },
 };
 
@@ -23,7 +23,7 @@ function getLogoTag() {
     try {
       if (fs.existsSync(p)) {
         const b64 = fs.readFileSync(p).toString('base64');
-        return `<img src="data:image/png;base64,${b64}" alt="iDealz" style="width:160px;height:auto;display:block;background:#fff">`;
+        return `<img src="data:image/png;base64,${b64}" alt="iDealz" style="width:160px;height:auto;display:block;mix-blend-mode:multiply;background:#fff">`;
       }
     } catch {}
   }
@@ -37,19 +37,35 @@ function buildHTML(q) {
   const { sscl, vat, total } = calcTax(sub, q.taxMode);
   const tl = TAX_LABELS[q.taxMode];
   const logoTag = getLogoTag();
+  const isCommon = q.quotationType === 'COMMON';
 
   const wa  = (num, disp) => `<a href="https://wa.me/94${num.replace(/^0/,'')}" style="color:#111;text-decoration:none;font-weight:700">${disp}</a>`;
   const tel = (num, disp) => `<a href="tel:${num}" style="color:#444;text-decoration:none">${disp}</a>`;
 
-  // Only show the sending branch contact in header
-  // Show all 3 branches only once in footer
   const branchCell = (name, addr, waNum, phNum, maps, isLast) => `
-    <td style="text-align:center;padding:5px 4px;color:#444;vertical-align:top;font-size:9px;${!isLast ? 'border-right:0.5px solid #ddd;' : ''}">
+    <td style="text-align:center;padding:6px 4px;color:#444;vertical-align:top;font-size:9px;${!isLast ? 'border-right:0.5px solid #ddd;' : ''}">
       <div style="font-weight:700;font-size:10px;margin-bottom:2px">iDealz ${name}</div>
       <div style="margin-bottom:2px">${addr}</div>
       <div style="margin-bottom:2px">${wa(waNum,fmtNum(waNum))} | ${tel(phNum,fmtNum(phNum))}</div>
       <a href="${maps}" style="color:#666;font-size:8px;text-decoration:none">View on Google Maps</a>
     </td>`;
+
+  // COMMON footer = all 3 branches
+  // BRANCH footer = only sending branch
+  const footerContent = isCommon
+    ? `<table style="width:100%;border-collapse:collapse;margin-bottom:7px"><tr>
+        ${branchCell('Prime',       'No. 86, Galle Road, Colombo 04',  '0777243243', '0112556565', 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo', false)}
+        ${branchCell('Marino Mall', '590-9A, Marino Mall, Colombo 03', '0777656565', '0112585758', 'https://maps.google.com/?q=Marino+Mall+Colombo', false)}
+        ${branchCell('Liberty Plaza','01-64, Liberty Plaza, Colombo 03','0777655565','0112575357', 'https://maps.google.com/?q=Liberty+Plaza+Colombo', true)}
+      </tr></table>`
+    : `<table style="width:100%;border-collapse:collapse;margin-bottom:7px"><tr>
+        <td style="text-align:center;padding:6px 4px;color:#444;vertical-align:top;font-size:10px">
+          <div style="font-weight:700;font-size:11px;margin-bottom:3px">iDealz ${q.branch}</div>
+          <div style="margin-bottom:3px">${b.addr}</div>
+          <div style="margin-bottom:3px">${wa(b.wa,fmtNum(b.wa))} | ${tel(b.ph,fmtNum(b.ph))}</div>
+          <a href="${b.maps}" style="color:#666;font-size:9px;text-decoration:none">View on Google Maps</a>
+        </td>
+      </tr></table>`;
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
@@ -60,13 +76,13 @@ function buildHTML(q) {
 </style>
 </head><body>
 
-<!-- HEADER: logo + branch contact (sending branch only) + quotation details -->
+<!-- HEADER -->
 <table style="width:100%;border-collapse:collapse;margin-bottom:14px"><tr>
-  <td style="vertical-align:middle;width:210px">
-    <div style="background:#fff;padding:4px 0;display:inline-block">
+  <td style="vertical-align:middle;width:260px">
+    <div style="background:#ffffff;display:inline-block;padding:6px 6px 6px 0">
       ${logoTag}
     </div>
-    <div style="font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:3px">The future's bright</div>
+    <div style="font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:4px">The future's bright</div>
     <div style="margin-top:8px;font-size:10px;color:#444;line-height:1.8">
       <div style="font-weight:700">${b.addr}</div>
       <div>${wa(b.wa,fmtNum(b.wa))} | ${tel(b.ph,fmtNum(b.ph))}</div>
@@ -75,7 +91,7 @@ function buildHTML(q) {
   </td>
   <td style="vertical-align:top;text-align:right">
     <div style="border:2.5px solid #000;display:inline-block;padding:6px 20px;font-size:20px;font-weight:900;letter-spacing:3px;margin-bottom:8px">QUOTATION</div>
-    <div style="font-size:11px;color:#444;line-height:2">
+    <div style="font-size:11px;color:#444;line-height:2.1">
       <div><b>Quotation #</b> ${q.globalNum}</div>
       <div><b>Date:</b> ${new Date(q.createdAt).toLocaleDateString('en-GB')}</div>
       <div><b>Branch:</b> iDealz ${q.branch}</div>
@@ -159,17 +175,13 @@ ${q.notes ? `<div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px
   Goods dispatched after cheque realisation only. Please write cheques in favour of <b>"iDealz Lanka (Pvt) Limited"</b>.
 </div>
 
-<!-- FOOTER: all 3 branches (shown once only) + social media (shown once only) -->
+<!-- FOOTER -->
 <div style="border-top:0.5px solid #ccc;padding-top:9px">
-  <table style="width:100%;border-collapse:collapse;margin-bottom:7px"><tr>
-    ${branchCell('Prime', 'No. 86, Galle Road, Colombo 04', '0777243243', '0112556565', 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo', false)}
-    ${branchCell('Marino Mall', '590-9A, Marino Mall, Colombo 03', '0777656565', '0112585758', 'https://maps.google.com/?q=Marino+Mall+Colombo', false)}
-    ${branchCell('Liberty Plaza', '01-64, Liberty Plaza, Colombo 03', '0777655565', '0112575357', 'https://maps.google.com/?q=Liberty+Plaza+Colombo', true)}
-  </tr></table>
+  ${footerContent}
   <div style="text-align:center;font-size:10px;color:#555;margin-bottom:3px">
-    <a href="https://www.instagram.com/idealzlanka?igsh=bXVubjVmanFmanpk&utm_source=qr" style="color:#111;text-decoration:none;margin:0 6px">Instagram</a>
+    <a href="https://www.instagram.com/idealzlanka" style="color:#111;text-decoration:none;margin:0 6px">Instagram</a>
     <a href="https://www.facebook.com/iDealz9191" style="color:#111;text-decoration:none;margin:0 6px">Facebook</a>
-    <a href="https://www.tiktok.com/@idealzlanka?_r=1&_t=ZS-96NH2o6mLsA" style="color:#111;text-decoration:none;margin:0 6px">TikTok</a>
+    <a href="https://www.tiktok.com/@idealzlanka" style="color:#111;text-decoration:none;margin:0 6px">TikTok</a>
     &nbsp;|&nbsp; <a href="mailto:info@idealz.lk" style="color:#111;text-decoration:none">info@idealz.lk</a>
     &nbsp;|&nbsp; <a href="https://www.idealz.lk" style="color:#111;text-decoration:none">www.idealz.lk</a>
   </div>
@@ -185,24 +197,12 @@ async function generatePDF(q) {
   const browser = await puppeteer.launch({
     headless: 'new',
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-    ],
+    args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-first-run','--no-zygote','--single-process'],
   });
   try {
     const page = await browser.newPage();
     await page.setContent(buildHTML(q), { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '8mm', bottom: '8mm', left: '10mm', right: '10mm' },
-    });
+    const pdf = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '8mm', bottom: '8mm', left: '10mm', right: '10mm' } });
     return pdf;
   } finally {
     await browser.close();
