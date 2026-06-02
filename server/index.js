@@ -14,6 +14,9 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 const PROD = process.env.NODE_ENV === 'production';
 
+// Trust Railway's proxy
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
