@@ -3,14 +3,10 @@ const nodemailer = require('nodemailer');
 const { TAX_LABELS } = require('./tax');
 
 function getTransporter() {
-  // Try multiple ports in order - Railway blocks some SMTP ports
-  const port = parseInt(process.env.SMTP_PORT || '587');
-  const secure = port === 465;
-  
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port,
-    secure,
+    host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -19,8 +15,6 @@ function getTransporter() {
     greetingTimeout: 30000,
     socketTimeout: 30000,
     tls: { rejectUnauthorized: false },
-    // Required for Railway
-    requireTLS: !secure,
   });
 }
 
@@ -29,6 +23,7 @@ function fmtRs(v) {
 }
 
 async function sendQuotationEmail(q, downloadUrl) {
+  const transporter = getTransporter();
   const tl = TAX_LABELS[q.taxMode];
 
   const html = `<!DOCTYPE html>
@@ -93,40 +88,14 @@ async function sendQuotationEmail(q, downloadUrl) {
 </table>
 </body></html>`;
 
-  // Try port 587 first, then 465 if that fails
-  const ports = [587, 465, 25];
-  let lastError;
-  
-  for (const port of ports) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port,
-        secure: port === 465,
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-        connectionTimeout: 20000,
-        greetingTimeout: 20000,
-        socketTimeout: 20000,
-        tls: { rejectUnauthorized: false },
-      });
-      
-      await transporter.sendMail({
-        from: `"iDealz ${q.branch}" <${process.env.SMTP_USER}>`,
-        to: q.clientEmail,
-        subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
-        html,
-      });
-      
-      console.log(`Email sent successfully via port ${port}`);
-      return; // Success - exit
-    } catch (err) {
-      console.log(`Port ${port} failed: ${err.message}`);
-      lastError = err;
-    }
-  }
-  
-  // All ports failed
-  throw lastError;
+  await transporter.sendMail({
+    from: `"iDealz ${q.branch}" <${process.env.SMTP_USER}>`,
+    to: q.clientEmail,
+    subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
+    html,
+  });
+
+  console.log(`Email sent to ${q.clientEmail}`);
 }
 
 module.exports = { sendQuotationEmail };
