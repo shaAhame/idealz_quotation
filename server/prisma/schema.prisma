@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,32 +19,38 @@ model User {
 }
 
 model Quotation {
-  id          String      @id @default(uuid())
-  globalNum   Int         @unique
-  branch      Branch
-  managerId   String
-  manager     User        @relation(fields: [managerId], references: [id])
-  clientName  String
-  clientAddr  String?
-  clientEmail String
-  clientPhone String?
-  taxMode     TaxMode
-  items       Json
-  subTotal    Float
-  vatAmount   Float
-  ssclAmount  Float       @default(0)
-  total       Float
-  notes       String?
-  status      Status      @default(DRAFT)
-  downloadToken String    @unique @default(uuid())
-  emailSentAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id            String        @id @default(uuid())
+  globalNum     Int           @unique
+  branch        Branch
+  managerId     String
+  manager       User          @relation(fields: [managerId], references: [id])
+  clientName    String
+  clientAddr    String?
+  clientEmail   String
+  clientPhone   String?
+  taxMode       TaxMode
+  quotationType QuotationType @default(COMMON)
+  items         Json
+  subTotal      Float
+  vatAmount     Float
+  ssclAmount    Float         @default(0)
+  total         Float
+  notes         String?
+  status        Status        @default(DRAFT)
+  downloadToken String        @unique @default(uuid())
+  emailSentAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model Counter {
   id    String @id @default("global")
   value Int    @default(0)
+}
+
+enum QuotationType {
+  COMMON
+  BRANCH
 }
 
 enum Branch {
