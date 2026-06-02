@@ -5,25 +5,25 @@ const fs = require('fs');
 const path = require('path');
 
 const BRANCHES = {
-  Prime:   { addr: 'No. 86, Galle Road, Colombo 04',  wa: '0777243243', ph: '0112556565', maps: 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo' },
-  Marino:  { addr: '590-9A, Marino Mall, Colombo 03',  wa: '0777656565', ph: '0112585758', maps: 'https://maps.google.com/?q=Marino+Mall+Colombo' },
-  Liberty: { addr: '01-64, Liberty Plaza, Colombo 03', wa: '0777655565', ph: '0112575357', maps: 'https://maps.google.com/?q=Liberty+Plaza+Colombo' },
+  Prime:   { addr: 'No. 86, Galle Road, Colombo 04',   wa: '0777243243', ph: '0112556565', maps: 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo' },
+  Marino:  { addr: '590-9A, Marino Mall, Colombo 03',   wa: '0777656565', ph: '0112585758', maps: 'https://maps.google.com/?q=Marino+Mall+Colombo' },
+  Liberty: { addr: '01-64, Liberty Plaza, Colombo 03',  wa: '0777655565', ph: '0112575357', maps: 'https://maps.google.com/?q=Liberty+Plaza+Colombo' },
 };
 
 function fmtNum(n) { return n.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3'); }
 function fmtRs(v) { return 'Rs. ' + parseFloat(v || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 function getLogoTag() {
-  const paths = [
+  const logoPaths = [
     path.join(__dirname, '../../client/public/logo.png'),
     path.join(__dirname, '../../client/dist/logo.png'),
     path.join(__dirname, '../public/logo.png'),
   ];
-  for (const p of paths) {
+  for (const p of logoPaths) {
     try {
       if (fs.existsSync(p)) {
         const b64 = fs.readFileSync(p).toString('base64');
-        return `<img src="data:image/png;base64,${b64}" alt="iDealz" style="width:160px;height:auto;display:block;mix-blend-mode:multiply;background:#fff">`;
+        return `<img src="data:image/png;base64,${b64}" alt="iDealz" style="width:155px;height:auto;display:block">`;
       }
     } catch {}
   }
@@ -37,7 +37,7 @@ function buildHTML(q) {
   const { sscl, vat, total } = calcTax(sub, q.taxMode);
   const tl = TAX_LABELS[q.taxMode];
   const logoTag = getLogoTag();
-  const isCommon = q.quotationType === 'COMMON';
+  const isCommon = !q.quotationType || q.quotationType === 'COMMON';
 
   const wa  = (num, disp) => `<a href="https://wa.me/94${num.replace(/^0/,'')}" style="color:#111;text-decoration:none;font-weight:700">${disp}</a>`;
   const tel = (num, disp) => `<a href="tel:${num}" style="color:#444;text-decoration:none">${disp}</a>`;
@@ -50,16 +50,14 @@ function buildHTML(q) {
       <a href="${maps}" style="color:#666;font-size:8px;text-decoration:none">View on Google Maps</a>
     </td>`;
 
-  // COMMON footer = all 3 branches
-  // BRANCH footer = only sending branch
-  const footerContent = isCommon
+  const footerBranches = isCommon
     ? `<table style="width:100%;border-collapse:collapse;margin-bottom:7px"><tr>
-        ${branchCell('Prime',       'No. 86, Galle Road, Colombo 04',  '0777243243', '0112556565', 'https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo', false)}
-        ${branchCell('Marino Mall', '590-9A, Marino Mall, Colombo 03', '0777656565', '0112585758', 'https://maps.google.com/?q=Marino+Mall+Colombo', false)}
-        ${branchCell('Liberty Plaza','01-64, Liberty Plaza, Colombo 03','0777655565','0112575357', 'https://maps.google.com/?q=Liberty+Plaza+Colombo', true)}
+        ${branchCell('Prime',       'No. 86, Galle Road, Colombo 04',   '0777243243','0112556565','https://maps.google.com/?q=iDealz+Prime+Galle+Road+Colombo', false)}
+        ${branchCell('Marino Mall', '590-9A, Marino Mall, Colombo 03',  '0777656565','0112585758','https://maps.google.com/?q=Marino+Mall+Colombo', false)}
+        ${branchCell('Liberty Plaza','01-64, Liberty Plaza, Colombo 03','0777655565','0112575357','https://maps.google.com/?q=Liberty+Plaza+Colombo', true)}
       </tr></table>`
     : `<table style="width:100%;border-collapse:collapse;margin-bottom:7px"><tr>
-        <td style="text-align:center;padding:6px 4px;color:#444;vertical-align:top;font-size:10px">
+        <td style="text-align:center;padding:6px;color:#444;vertical-align:top;font-size:10px">
           <div style="font-weight:700;font-size:11px;margin-bottom:3px">iDealz ${q.branch}</div>
           <div style="margin-bottom:3px">${b.addr}</div>
           <div style="margin-bottom:3px">${wa(b.wa,fmtNum(b.wa))} | ${tel(b.ph,fmtNum(b.ph))}</div>
@@ -78,11 +76,11 @@ function buildHTML(q) {
 
 <!-- HEADER -->
 <table style="width:100%;border-collapse:collapse;margin-bottom:14px"><tr>
-  <td style="vertical-align:middle;width:260px">
-    <div style="background:#ffffff;display:inline-block;padding:6px 6px 6px 0">
+  <td style="vertical-align:top;width:260px;padding-right:20px">
+    <div style="background:#ffffff;display:inline-block;line-height:0">
       ${logoTag}
     </div>
-    <div style="font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:4px">The future's bright</div>
+    <div style="font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:5px">The future's bright</div>
     <div style="margin-top:8px;font-size:10px;color:#444;line-height:1.8">
       <div style="font-weight:700">${b.addr}</div>
       <div>${wa(b.wa,fmtNum(b.wa))} | ${tel(b.ph,fmtNum(b.ph))}</div>
@@ -105,7 +103,7 @@ function buildHTML(q) {
   <div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Bill to</div>
   <table style="border-collapse:collapse;width:100%">
     <tr>
-      <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap;vertical-align:top">Company / Name</td>
+      <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap;vertical-align:top;width:120px">Company / Name</td>
       <td style="font-size:13px;font-weight:700;color:#111;padding-bottom:4px">${q.clientName}</td>
     </tr>
     ${q.clientAddr ? `<tr>
@@ -177,7 +175,7 @@ ${q.notes ? `<div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px
 
 <!-- FOOTER -->
 <div style="border-top:0.5px solid #ccc;padding-top:9px">
-  ${footerContent}
+  ${footerBranches}
   <div style="text-align:center;font-size:10px;color:#555;margin-bottom:3px">
     <a href="https://www.instagram.com/idealzlanka" style="color:#111;text-decoration:none;margin:0 6px">Instagram</a>
     <a href="https://www.facebook.com/iDealz9191" style="color:#111;text-decoration:none;margin:0 6px">Facebook</a>
@@ -202,7 +200,11 @@ async function generatePDF(q) {
   try {
     const page = await browser.newPage();
     await page.setContent(buildHTML(q), { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '8mm', bottom: '8mm', left: '10mm', right: '10mm' } });
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '8mm', bottom: '8mm', left: '10mm', right: '10mm' },
+    });
     return pdf;
   } finally {
     await browser.close();
