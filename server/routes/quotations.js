@@ -45,7 +45,7 @@ router.get('/stats', auth, async (req, res) => {
 
 router.post('/', auth, async (req, res) => {
   try {
-    const { clientName, clientAddr, clientEmail, clientPhone, taxMode, items, notes } = req.body;
+    const { clientName, clientAddr, clientEmail, clientPhone, taxMode, items, notes, quotationType } = req.body;
     if (!clientName || !clientEmail || !taxMode || !Array.isArray(items) || !items.length)
       return res.status(400).json({ error: 'Missing required fields' });
     const sub = items.reduce((s, i) => s + (Number(i.qty) * Number(i.price)), 0);
@@ -58,6 +58,7 @@ router.post('/', auth, async (req, res) => {
         clientPhone: clientPhone || null, taxMode, items,
         subTotal: sub, vatAmount: vat, ssclAmount: sscl, total,
         notes: notes || null, status: 'DRAFT',
+        quotationType: quotationType || 'COMMON',
       },
       include: { manager: { select: { name: true } } },
     });
