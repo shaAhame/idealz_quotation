@@ -81,11 +81,6 @@ function buildHTML(q) {
       ${logoTag}
     </div>
     <div style="font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:5px">The future's bright</div>
-    <div style="margin-top:8px;font-size:10px;color:#444;line-height:1.8">
-      <div style="font-weight:700">${b.addr}</div>
-      <div>${wa(b.wa,fmtNum(b.wa))} | ${tel(b.ph,fmtNum(b.ph))}</div>
-      <div><a href="mailto:info@idealz.lk" style="color:#111;text-decoration:none">info@idealz.lk</a> | <a href="https://www.idealz.lk" style="color:#111;text-decoration:none">www.idealz.lk</a></div>
-    </div>
   </td>
   <td style="vertical-align:top;text-align:right">
     <div style="border:2.5px solid #000;display:inline-block;padding:6px 20px;font-size:20px;font-weight:900;letter-spacing:3px;margin-bottom:8px">QUOTATION</div>
@@ -93,7 +88,6 @@ function buildHTML(q) {
       <div><b>Quotation #</b> ${q.globalNum}</div>
       <div><b>Date:</b> ${new Date(q.createdAt).toLocaleDateString('en-GB')}</div>
       <div><b>Branch:</b> iDealz ${q.branch}</div>
-      <div><b>Tax type:</b> ${tl}</div>
     </div>
   </td>
 </tr></table>
