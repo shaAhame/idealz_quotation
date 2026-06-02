@@ -89,7 +89,7 @@ async function sendQuotationEmail(q, downloadUrl) {
 </body></html>`;
 
   await transporter.sendMail({
-    from: `"iDealz ${q.branch}" <${process.env.SMTP_USER}>`,
+    from: '"iDealz" <info@idealz.lk>',
     to: q.clientEmail,
     subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
     html,
