@@ -136,11 +136,14 @@ ${items.map((it, i) => `
 <!-- PAYMENT + TOTALS -->
 <table style="width:100%;border-collapse:collapse;margin-bottom:13px"><tr>
   <td style="vertical-align:top;font-size:10px;color:#444;padding-right:20px">
-    <div style="font-weight:700;margin-bottom:5px;font-size:11px">Payment Details</div>
-    <div>Account Name: IDEALZ LANKA (PVT) LIMITED</div>
-    <div>Account No: 0010428116001</div>
-    <div>Bank: AMANA BANK &nbsp;|&nbsp; Branch: PETTAH</div>
-    <div>SWIFT Code: AMNALKLX</div>
+    <div style="font-weight:700;margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px">Payment Details</div>
+    <table style="border-collapse:collapse">
+      <tr><td style="font-size:10px;color:#888;padding:2px 12px 2px 0;white-space:nowrap">Account Name</td><td style="font-size:10px;color:#333;padding:2px 0;font-weight:600">IDEALZ LANKA (PVT) LIMITED</td></tr>
+      <tr><td style="font-size:10px;color:#888;padding:2px 12px 2px 0;white-space:nowrap">Account No</td><td style="font-size:10px;color:#333;padding:2px 0">0010428116001</td></tr>
+      <tr><td style="font-size:10px;color:#888;padding:2px 12px 2px 0;white-space:nowrap">Bank</td><td style="font-size:10px;color:#333;padding:2px 0">AMANA BANK</td></tr>
+      <tr><td style="font-size:10px;color:#888;padding:2px 12px 2px 0;white-space:nowrap">Branch</td><td style="font-size:10px;color:#333;padding:2px 0">PETTAH</td></tr>
+      <tr><td style="font-size:10px;color:#888;padding:2px 12px 2px 0;white-space:nowrap">SWIFT Code</td><td style="font-size:10px;color:#333;padding:2px 0">AMNALKLX</td></tr>
+    </table>
   </td>
   <td style="vertical-align:bottom;text-align:right;min-width:210px">
     <table style="width:100%;font-size:11px;border-collapse:collapse">
@@ -162,9 +165,14 @@ ${items.map((it, i) => `
 ${q.notes ? `<div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px;color:#555;margin-bottom:12px;border-radius:3px"><b>Notes:</b> ${q.notes}</div>` : ''}
 
 <!-- TERMS -->
-<div style="border:0.5px solid #ccc;padding:9px 11px;font-size:10px;color:#555;margin-bottom:13px;border-radius:3px">
-  <b>Terms &amp; Conditions:</b> This quotation is valid only on the date of issue, subjected to availability of stock.
-  Goods dispatched after cheque realisation only. Please write cheques in favour of <b>"iDealz Lanka (Pvt) Limited"</b>.
+<div style="border:0.5px solid #ccc;padding:10px 12px;font-size:10px;color:#555;margin-bottom:13px;border-radius:3px">
+  <div style="font-weight:700;margin-bottom:6px;font-size:11px">Terms &amp; Conditions</div>
+  <table style="border-collapse:collapse;width:100%">
+    <tr><td style="vertical-align:top;padding-right:6px;padding-bottom:3px">•</td><td style="padding-bottom:3px;line-height:1.5">This quotation is valid only on the date of issue.</td></tr>
+    <tr><td style="vertical-align:top;padding-right:6px;padding-bottom:3px">•</td><td style="padding-bottom:3px;line-height:1.5">Subject to availability of stock.</td></tr>
+    <tr><td style="vertical-align:top;padding-right:6px;padding-bottom:3px">•</td><td style="padding-bottom:3px;line-height:1.5">Goods will be dispatched only after cheque realisation.</td></tr>
+    <tr><td style="vertical-align:top;padding-right:6px">•</td><td style="line-height:1.5">Please write cheques in favour of <b>"iDealz Lanka (Pvt) Limited"</b>.</td></tr>
+  </table>
 </div>
 
 <!-- FOOTER -->
