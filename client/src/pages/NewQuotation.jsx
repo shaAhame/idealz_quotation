@@ -145,6 +145,7 @@ export default function NewQuotation() {
         </div>
       )}
 
+      {/* Client Details */}
       <div className="card" style={{ marginBottom:16 }}>
         <div style={{ fontWeight:600, fontSize:13, marginBottom:14 }}>Client Details</div>
         <div className="form-grid">
@@ -177,6 +178,7 @@ export default function NewQuotation() {
         </div>
       </div>
 
+      {/* Tax Format */}
       <div className="card" style={{ marginBottom:16 }}>
         <div style={{ fontWeight:600, fontSize:13, marginBottom:12 }}>Tax / Price Format</div>
         <div className="tax-grid">
@@ -194,6 +196,7 @@ export default function NewQuotation() {
         </div>
       </div>
 
+      {/* Quotation Type */}
       <div className="card" style={{ marginBottom:16 }}>
         <div style={{ fontWeight:600, fontSize:13, marginBottom:12 }}>Quotation Type</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
@@ -209,7 +212,13 @@ export default function NewQuotation() {
             onClick={() => setF('quotationType', 'BRANCH')}
             style={{ padding:'12px 16px', textAlign:'left' }}>
             <div className="t-name" style={{ fontSize:13 }}>🏪 Branch only</div>
-        <div className="card" style={{ marginBottom:16 }}>
+            <div className="t-pct" style={{ marginTop:4 }}>Shows only this branch address in footer</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="card" style={{ marginBottom:16 }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
           <div style={{ fontWeight:600, fontSize:13 }}>Items</div>
           <button className="btn btn-sm" onClick={addItem}><Icons.Plus /> Add item</button>
@@ -274,6 +283,7 @@ export default function NewQuotation() {
         </div>
       </div>
 
+      {/* Notes */}
       <div className="card" style={{ marginBottom:24 }}>
         <label className="form-label">Notes / Additional terms (optional)</label>
         <textarea className="form-input" value={form.notes}
@@ -281,6 +291,7 @@ export default function NewQuotation() {
           rows={2} placeholder="e.g. 06 month seller warranty included" />
       </div>
 
+      {/* Actions */}
       <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
         <button className="btn" onClick={handlePDF} disabled={saving || sending || downloading}>
           <Icons.Download /> {downloading ? 'Generating…' : 'Download PDF'}
