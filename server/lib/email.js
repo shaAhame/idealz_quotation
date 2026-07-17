@@ -12,6 +12,7 @@ async function sendQuotationEmail(q, downloadUrl) {
     Liberty: { addr: '01-64, Liberty Plaza, Colombo 03', wa: '94777655565', waDisp: '0777 655 565', ph: '0112575357', phDisp: '0112 575 357' },
   };
   const b = BRANCH_DATA[q.branch] || BRANCH_DATA.Prime;
+  const tl = TAX_LABELS[q.taxMode];
 
   const html = `<!DOCTYPE html>
 <html>
@@ -44,12 +45,13 @@ async function sendQuotationEmail(q, downloadUrl) {
 
   <!-- DOWNLOAD BUTTON -->
   <tr><td style="padding:8px 32px 28px;text-align:center">
-    <a href="${downloadUrl}" style="display:inline-block;background:#111;color:#fff;text-decoration:none;padding:14px 40px;border-radius:6px;font-family:'DM Sans',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:0.3px">
+    <a href="${downloadUrl}" style="display:inline-block;background:#4a4a4a;color:#fff;text-decoration:none;padding:14px 40px;border-radius:6px;font-family:'DM Sans',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:0.3px">
       Download Quotation PDF
     </a>
-    <div style="margin-top:14px;font-family:'DM Sans',Arial,sans-serif;font-size:11px;color:#999">Or copy this link:</div>
-    <div style="background:#f7f7f5;border:1px solid #e5e5e3;border-radius:4px;padding:10px 12px;font-size:11px;color:#666;font-family:monospace;word-break:break-all;margin-top:6px;text-align:left">
-      ${downloadUrl}
+    <div style="margin-top:14px">
+      <a href="${downloadUrl}" style="font-family:'DM Sans',Arial,sans-serif;font-size:12px;color:#4a4a4a;text-decoration:underline">
+        Click here if button doesn't work
+      </a>
     </div>
   </td></tr>
 
