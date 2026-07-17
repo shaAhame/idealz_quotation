@@ -78,13 +78,11 @@ function buildHTML(q) {
 <!-- HEADER -->
 <table style="width:100%;border-collapse:collapse;margin-bottom:14px"><tr>
   <td style="vertical-align:top;width:260px;padding-right:20px">
-    <div style="background:#ffffff;display:inline-block;line-height:0">
-      ${logoTag}
-    </div>
+    <div style="background:#ffffff;display:inline-block;line-height:0">${logoTag}</div>
     <div style="font-size:9px;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:5px">The future's bright</div>
   </td>
   <td style="vertical-align:top;text-align:right">
-    <div style="border:2.5px solid #000;display:inline-block;padding:6px 20px;font-size:20px;font-weight:900;letter-spacing:3px;margin-bottom:8px">QUOTATION</div>
+    <div style="border:2.5px solid #000;display:inline-block;padding:6px 20px;font-size:20px;font-weight:700;letter-spacing:3px;margin-bottom:8px">QUOTATION</div>
     <div style="font-size:11px;color:#444;line-height:2.1">
       <div><b>Quotation #</b> ${q.globalNum}</div>
       <div><b>Date:</b> ${new Date(q.createdAt).toLocaleDateString('en-GB')}</div>
@@ -101,28 +99,19 @@ function buildHTML(q) {
       <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap;vertical-align:top;width:120px">Company / Name</td>
       <td style="font-size:13px;font-weight:700;color:#111;padding-bottom:4px">${q.clientName}</td>
     </tr>
-    ${q.clientAddr ? `<tr>
-      <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap;vertical-align:top">Address</td>
-      <td style="font-size:11px;color:#333;padding-bottom:4px">${q.clientAddr}</td>
-    </tr>` : ''}
-    ${q.clientPhone ? `<tr>
-      <td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap">Phone</td>
-      <td style="font-size:11px;color:#333;padding-bottom:4px">${q.clientPhone}</td>
-    </tr>` : ''}
-    <tr>
-      <td style="font-size:11px;color:#888;padding-right:16px;white-space:nowrap">Email</td>
-      <td style="font-size:11px;color:#333"><a href="mailto:${q.clientEmail}" style="color:#333;text-decoration:none">${q.clientEmail}</a></td>
-    </tr>
+    ${q.clientAddr ? `<tr><td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap;vertical-align:top">Address</td><td style="font-size:11px;color:#333;padding-bottom:4px">${q.clientAddr}</td></tr>` : ''}
+    ${q.clientPhone ? `<tr><td style="font-size:11px;color:#888;padding-right:16px;padding-bottom:4px;white-space:nowrap">Phone</td><td style="font-size:11px;color:#333;padding-bottom:4px">${q.clientPhone}</td></tr>` : ''}
+    <tr><td style="font-size:11px;color:#888;padding-right:16px;white-space:nowrap">Email</td><td style="font-size:11px;color:#333"><a href="mailto:${q.clientEmail}" style="color:#333;text-decoration:none">${q.clientEmail}</a></td></tr>
   </table>
 </div>
 
 <!-- ITEMS TABLE -->
 <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:13px">
 <thead><tr>
-  <th style="background:#111;color:#fff;padding:7px 8px;text-align:center;width:44px;font-weight:700">QTY</th>
-  <th style="background:#111;color:#fff;padding:7px 8px;text-align:left;font-weight:700">DESCRIPTION</th>
-  <th style="background:#111;color:#fff;padding:7px 8px;text-align:right;width:115px;font-weight:700">UNIT PRICE</th>
-  <th style="background:#111;color:#fff;padding:7px 8px;text-align:right;width:115px;font-weight:700">TOTAL</th>
+  <th style="background:#4a4a4a;color:#fff;padding:7px 8px;text-align:center;width:44px;font-weight:600">QTY</th>
+  <th style="background:#4a4a4a;color:#fff;padding:7px 8px;text-align:left;font-weight:600">DESCRIPTION</th>
+  <th style="background:#4a4a4a;color:#fff;padding:7px 8px;text-align:right;width:115px;font-weight:600">UNIT PRICE</th>
+  <th style="background:#4a4a4a;color:#fff;padding:7px 8px;text-align:right;width:115px;font-weight:600">TOTAL</th>
 </tr></thead>
 <tbody>
 ${items.map((it, i) => `
@@ -155,7 +144,7 @@ ${items.map((it, i) => `
       ${q.taxMode === 'VAT_INCLUSIVE' ? `<tr><td style="padding:4px 8px;color:#555">Incl. VAT</td><td style="padding:4px 8px;text-align:right">${fmtRs(vat)}</td></tr>` : ''}
       <tr><td colspan="2" style="padding:2px 0"></td></tr>
       <tr><td colspan="2" style="padding:0">
-        <table style="width:100%;background:#111;color:#fff;border-collapse:collapse">
+        <table style="width:100%;background:#4a4a4a;color:#fff;border-collapse:collapse">
           <tr><td style="padding:8px;font-weight:700;font-size:14px">TOTAL</td><td style="padding:8px;text-align:right;font-weight:700;font-size:14px">${fmtRs(total)}</td></tr>
         </table>
       </td></tr>
