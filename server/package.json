@@ -5,10 +5,9 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "db:migrate": "npx prisma migrate deploy",
-    "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
-    "db:studio": "npx prisma studio"
+    "db:generate": "npx prisma generate",
+    "db:migrate": "npx prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
@@ -20,7 +19,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.12",
-    "puppeteer": "^22.4.0",
+    "pdfkit": "^0.15.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
