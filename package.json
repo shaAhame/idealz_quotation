@@ -1,29 +1,19 @@
 {
-  "name": "idealz-server",
+  "name": "idealz-quotation-system",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "db:push": "npx prisma db push",
-    "db:generate": "npx prisma generate",
-    "db:migrate": "npx prisma migrate deploy"
-  },
-  "dependencies": {
-    "@prisma/client": "^5.10.2",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.18.3",
-    "express-rate-limit": "^7.2.0",
-    "helmet": "^7.1.0",
-    "html-pdf-node": "^1.0.8",
-    "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^6.9.12",
-    "uuid": "^9.0.1"
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "db:push": "cd server && npx prisma db push",
+    "db:migrate": "cd server && npx prisma migrate deploy",
+    "db:seed": "cd server && node seed.js",
+    "db:studio": "cd server && npx prisma studio"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0",
-    "prisma": "^5.10.2"
+    "concurrently": "^8.2.2"
   }
 }
+Go to GitHub → root folder → package.json → edit → paste this → commit.
