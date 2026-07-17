@@ -105,3 +105,18 @@ router.get('/:id/pdf', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+// DELETE /quotations/:id
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const q = await prisma.quotation.findUnique({ where: { id: req.params.id } });
+    if (!q) return res.status(404).json({ error: 'Not found' });
+    if (req.user.role !== 'ADMIN' && q.branch !== req.user.branch)
+      return res.status(403).json({ error: 'Forbidden' });
+    await prisma.quotation.delete({ where: { id: req.params.id } });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
