@@ -61,15 +61,15 @@ async function sendQuotationEmail(q, downloadUrl) {
     <div style="font-family:'DM Sans',Arial,sans-serif;font-size:12px;font-weight:700;color:#111;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.8px">Terms &amp; Conditions</div>
     <table cellpadding="0" cellspacing="0" style="width:100%">
       <tr>
-        <td style="font-size:13px;color:#3b82f6;padding:4px 8px 4px 0;vertical-align:top;font-weight:700">•</td>
+        <td style="font-size:13px;color:#111;padding:4px 8px 4px 0;vertical-align:top;font-weight:700">•</td>
         <td style="font-family:'DM Sans',Arial,sans-serif;font-size:13px;color:#555;padding:4px 0;line-height:1.6">This quotation is valid only on the date of issue and subjected to availability of stock.</td>
       </tr>
       <tr>
-        <td style="font-size:13px;color:#3b82f6;padding:4px 8px 4px 0;vertical-align:top;font-weight:700">•</td>
+        <td style="font-size:13px;color:#111;padding:4px 8px 4px 0;vertical-align:top;font-weight:700">•</td>
         <td style="font-family:'DM Sans',Arial,sans-serif;font-size:13px;color:#555;padding:4px 0;line-height:1.6">Please write the cheques in favour of <span style="font-weight:600;color:#111">"iDealz Lanka (Pvt) Limited"</span>.</td>
       </tr>
       <tr>
-        <td style="font-size:13px;color:#3b82f6;padding:4px 8px 4px 0;vertical-align:top;font-weight:700">•</td>
+        <td style="font-size:13px;color:#111;padding:4px 8px 4px 0;vertical-align:top;font-weight:700">•</td>
         <td style="font-family:'DM Sans',Arial,sans-serif;font-size:13px;color:#555;padding:4px 0;line-height:1.6">Please note that the Goods will be dispatched after the cheque realization only.</td>
       </tr>
     </table>
@@ -123,6 +123,8 @@ async function sendQuotationEmail(q, downloadUrl) {
       to: [{ email: q.clientEmail, name: q.clientName }],
       subject: `Quotation #${q.globalNum} from iDealz ${q.branch} — ${q.clientName}`,
       htmlContent: html,
+      trackClicks: false,
+      trackOpens: false,
     }),
   });
 
