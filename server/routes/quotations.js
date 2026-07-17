@@ -45,25 +45,30 @@ router.get('/stats', auth, async (req, res) => {
 
 router.post('/', auth, async (req, res) => {
   try {
-    const { clientName, clientAddr, clientEmail, clientPhone, taxMode, items, notes, quotationType } = req.body;
+    const { clientName, clientAddr, clientEmail, clientPhone, taxMode, items, notes, quotationType, branch } = req.body;
     if (!clientName || !clientEmail || !taxMode || !Array.isArray(items) || !items.length)
       return res.status(400).json({ error: 'Missing required fields' });
+
+    // Admin can override branch, managers use their own branch
+    const quotationBranch = req.user.role === 'ADMIN' && branch ? branch : req.user.branch;
+
     const sub = items.reduce((s, i) => s + (Number(i.qty) * Number(i.price)), 0);
     const { sscl, vat, total } = calcTax(sub, taxMode);
     const globalNum = await getNextNum();
+
     const quotation = await prisma.quotation.create({
       data: {
-        globalNum, branch: req.user.branch, managerId: req.user.id,
+        globalNum, branch: quotationBranch, managerId: req.user.id,
         clientName, clientAddr: clientAddr || null, clientEmail,
-        clientPhone: clientPhone || null, taxMode, items,
-        subTotal: sub, vatAmount: vat, ssclAmount: sscl, total,
-        notes: notes || null, status: 'DRAFT',
+        clientPhone: clientPhone || null, taxMode,
         quotationType: quotationType || 'COMMON',
+        items, subTotal: sub, vatAmount: vat, ssclAmount: sscl, total,
+        notes: notes || null, status: 'DRAFT',
       },
       include: { manager: { select: { name: true } } },
     });
     res.json(quotation);
-  } catch (e) { console.error(e); res.status(500).json({ error: 'Server error' }); }
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
 router.get('/:id', auth, async (req, res) => {
@@ -93,13 +98,8 @@ router.get('/:id/pdf', auth, async (req, res) => {
     const q = await prisma.quotation.findUnique({ where: { id: req.params.id }, include: { manager: { select: { name: true } } } });
     if (!q) return res.status(404).json({ error: 'Not found' });
     if (req.user.role !== 'ADMIN' && q.branch !== req.user.branch) return res.status(403).json({ error: 'Forbidden' });
-    console.log('Generating PDF for quotation', q.globalNum);
     const pdf = await generatePDF(q);
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="iDealz-Quotation-${q.globalNum}.pdf"`,
-      'Content-Length': pdf.length,
-    });
+    res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="iDealz-Quotation-${q.globalNum}.pdf"`, 'Content-Length': pdf.length });
     res.send(pdf);
   } catch (e) { console.error('PDF error:', e); res.status(500).json({ error: 'PDF generation failed: ' + e.message }); }
 });
