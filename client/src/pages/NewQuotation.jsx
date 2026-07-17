@@ -4,15 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { TAX_MODES, calcTax, fmtRs } from '../utils/tax';
 import { useToast } from '../hooks/useToast';
+import { useAuth } from '../hooks/useAuth';
 import { Icons } from '../components/Icons';
 
 export default function NewQuotation() {
   const nav = useNavigate();
   const toast = useToast();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
 
   const [form, setForm] = useState({
     clientName: '', clientAddr: '', clientEmail: '',
-    clientPhone: '', taxMode: 'VAT18', notes: '', quotationType: 'COMMON'
+    clientPhone: '', taxMode: 'VAT18', notes: '',
+    quotationType: 'COMMON',
+    branch: user?.branch || 'Prime',
   });
   const [items, setItems] = useState([{ id: 1, qty: 1, desc: '', price: '' }]);
   const [saving, setSaving] = useState(false);
@@ -145,6 +150,29 @@ export default function NewQuotation() {
         </div>
       )}
 
+      {/* Admin Branch Selector — only visible to admin */}
+      {isAdmin && (
+        <div className="card" style={{ marginBottom:16, border:'1.5px solid var(--border)', background:'var(--bg2)' }}>
+          <div style={{ fontWeight:600, fontSize:13, marginBottom:12 }}>
+            Send as Branch
+            <span style={{ fontSize:11, color:'var(--text3)', fontWeight:400, marginLeft:8 }}>Admin only</span>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
+            {['Prime','Marino','Liberty'].map(b => (
+              <div key={b}
+                className={`tax-opt${form.branch === b ? ' selected' : ''}`}
+                onClick={() => setF('branch', b)}
+                style={{ padding:'12px 16px', textAlign:'center', cursor:'pointer' }}>
+                <div className="t-name" style={{ fontSize:13 }}>iDealz {b}</div>
+                <div className="t-pct" style={{ marginTop:4 }}>
+                  {{ Prime:'Galle Road, Colombo 04', Marino:'Marino Mall, Colombo 03', Liberty:'Liberty Plaza, Colombo 03' }[b]}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Client Details */}
       <div className="card" style={{ marginBottom:16 }}>
         <div style={{ fontWeight:600, fontSize:13, marginBottom:14 }}>Client Details</div>
@@ -200,15 +228,13 @@ export default function NewQuotation() {
       <div className="card" style={{ marginBottom:16 }}>
         <div style={{ fontWeight:600, fontSize:13, marginBottom:12 }}>Quotation Type</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-          <div
-            className={`tax-opt${form.quotationType === 'COMMON' ? ' selected' : ''}`}
+          <div className={`tax-opt${form.quotationType === 'COMMON' ? ' selected' : ''}`}
             onClick={() => setF('quotationType', 'COMMON')}
             style={{ padding:'12px 16px', textAlign:'left' }}>
             <div className="t-name" style={{ fontSize:13 }}>🌐 Common</div>
             <div className="t-pct" style={{ marginTop:4 }}>Shows all 3 branch addresses in footer</div>
           </div>
-          <div
-            className={`tax-opt${form.quotationType === 'BRANCH' ? ' selected' : ''}`}
+          <div className={`tax-opt${form.quotationType === 'BRANCH' ? ' selected' : ''}`}
             onClick={() => setF('quotationType', 'BRANCH')}
             style={{ padding:'12px 16px', textAlign:'left' }}>
             <div className="t-name" style={{ fontSize:13 }}>🏪 Branch only</div>
@@ -228,8 +254,7 @@ export default function NewQuotation() {
           <table className="items-table" style={{ marginBottom:14 }}>
             <thead>
               <tr>
-                <th>Qty</th>
-                <th>Description</th>
+                <th>Qty</th><th>Description</th>
                 <th style={{ textAlign:'right' }}>Unit price (Rs.)</th>
                 <th style={{ textAlign:'right' }}>Total (Rs.)</th>
                 <th></th>
@@ -238,30 +263,13 @@ export default function NewQuotation() {
             <tbody>
               {items.map(item => (
                 <tr key={item.id}>
-                  <td>
-                    <input type="number" min="1" value={item.qty}
-                      onChange={e => updateItem(item.id, 'qty', e.target.value)}
-                      style={{ width:40, textAlign:'center' }} />
-                  </td>
-                  <td>
-                    <input type="text" value={item.desc}
-                      onChange={e => updateItem(item.id, 'desc', e.target.value)}
-                      placeholder="Item description" />
-                  </td>
-                  <td>
-                    <input type="number" min="0" step="0.01" value={item.price}
-                      onChange={e => updateItem(item.id, 'price', e.target.value)}
-                      placeholder="0.00" style={{ textAlign:'right' }} />
-                  </td>
+                  <td><input type="number" min="1" value={item.qty} onChange={e => updateItem(item.id,'qty',e.target.value)} style={{ width:40, textAlign:'center' }} /></td>
+                  <td><input type="text" value={item.desc} onChange={e => updateItem(item.id,'desc',e.target.value)} placeholder="Item description" /></td>
+                  <td><input type="number" min="0" step="0.01" value={item.price} onChange={e => updateItem(item.id,'price',e.target.value)} placeholder="0.00" style={{ textAlign:'right' }} /></td>
                   <td style={{ fontWeight:600, fontSize:13, textAlign:'right', paddingRight:12 }}>
                     {item.qty && item.price ? fmtRs(+item.qty * +item.price) : '—'}
                   </td>
-                  <td>
-                    <button className="btn btn-icon" style={{ color:'var(--danger)' }}
-                      onClick={() => removeItem(item.id)}>
-                      <Icons.Trash />
-                    </button>
-                  </td>
+                  <td><button className="btn btn-icon" style={{ color:'var(--danger)' }} onClick={() => removeItem(item.id)}><Icons.Trash /></button></td>
                 </tr>
               ))}
             </tbody>
@@ -270,14 +278,10 @@ export default function NewQuotation() {
         <div style={{ display:'flex', justifyContent:'flex-end' }}>
           <div className="totals-box">
             <div className="total-line"><span>Sub total</span><span>{fmtRs(sub)}</span></div>
-            {form.taxMode === 'VAT18_SSCL25' &&
-              <div className="total-line"><span>SSCL 2.5%</span><span>{fmtRs(sscl)}</span></div>}
-            {(form.taxMode === 'VAT18' || form.taxMode === 'VAT18_SSCL25') &&
-              <div className="total-line"><span>VAT 18%</span><span>{fmtRs(vat)}</span></div>}
-            {form.taxMode === 'FLAT205' &&
-              <div className="total-line"><span>Tax 20.5%</span><span>{fmtRs(total - sub)}</span></div>}
-            {form.taxMode === 'VAT_INCLUSIVE' &&
-              <div className="total-line"><span>Incl. VAT</span><span>{fmtRs(vat)}</span></div>}
+            {form.taxMode === 'VAT18_SSCL25' && <div className="total-line"><span>SSCL 2.5%</span><span>{fmtRs(sscl)}</span></div>}
+            {(form.taxMode === 'VAT18' || form.taxMode === 'VAT18_SSCL25') && <div className="total-line"><span>VAT 18%</span><span>{fmtRs(vat)}</span></div>}
+            {form.taxMode === 'FLAT205' && <div className="total-line"><span>Tax 20.5%</span><span>{fmtRs(total - sub)}</span></div>}
+            {form.taxMode === 'VAT_INCLUSIVE' && <div className="total-line"><span>Incl. VAT</span><span>{fmtRs(vat)}</span></div>}
             <div className="total-line grand"><span>Grand total</span><span>{fmtRs(total)}</span></div>
           </div>
         </div>
@@ -286,20 +290,19 @@ export default function NewQuotation() {
       {/* Notes */}
       <div className="card" style={{ marginBottom:24 }}>
         <label className="form-label">Notes / Additional terms (optional)</label>
-        <textarea className="form-input" value={form.notes}
-          onChange={e => setF('notes', e.target.value)}
+        <textarea className="form-input" value={form.notes} onChange={e => setF('notes', e.target.value)}
           rows={2} placeholder="e.g. 06 month seller warranty included" />
       </div>
 
       {/* Actions */}
       <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
-        <button className="btn" onClick={handlePDF} disabled={saving || sending || downloading}>
+        <button className="btn" onClick={handlePDF} disabled={saving||sending||downloading}>
           <Icons.Download /> {downloading ? 'Generating…' : 'Download PDF'}
         </button>
-        <button className="btn" onClick={handleSave} disabled={saving || sending}>
+        <button className="btn" onClick={handleSave} disabled={saving||sending}>
           <Icons.File /> {saving ? 'Saving…' : 'Save draft'}
         </button>
-        <button className="btn btn-primary" onClick={handleSend} disabled={saving || sending}>
+        <button className="btn btn-primary" onClick={handleSend} disabled={saving||sending}>
           <Icons.Mail /> {sending ? 'Sending…' : 'Send via email'}
         </button>
       </div>
